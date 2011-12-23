@@ -1,0 +1,58 @@
+<html>
+  <head>
+    <title>ChatService - <%= @client %></title>
+    <script language="javascript" type="text/javascript" src="/jquery-1.4.3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/jquery-ui-1.8.4.custom.min.js"></script>
+    <script src="/jquery.aautoscroll.2.4.js"></script>
+    <link href="/style.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/jquery-ui-1.8.4.custom.css" media="screen" rel="stylesheet" type="text/css" />
+  </head>
+  <body style="width:95%; background-color:white">
+      <h3>discussion avec <%= @client %></h3>
+      <div id="discussions" style="width:100%; float:right; margin-top:20px">
+	      <div id="ui-tabs-1">
+		      <div id="chat">
+		        <div id="chat_messages">
+		          <div class='chat_flux_message'></div>
+		        </div>
+		        <input type="text" name="chat_sender" id="chat_sender"/>
+		      </div>
+	      </div>
+      </div>
+      <div id="get_messages" style="display:none" ></div>
+      <div id="cache" style="display:none" ></div>
+  </body>
+</html>
+
+<script type="text/javascript" language="javascript">
+
+    function recuperer_messages() {
+      $("#get_messages").load("/message/<%= @client %>");
+      var text = $("#get_messages").html();
+      $(".chat_flux_message")
+          .last()
+          .after("<div class=\"chat_flux_message\">"+text+"</div>");
+      $("#get_messages").html("");
+    }
+
+    $("#chat_messages").autoscroll({ direction: "down", step: 50, scroll: true});
+
+    $("#chat_sender").keypress(function(event){
+      // 13 => [ENTER]
+      // 27 => [ESC]
+      var text = $(this).val();
+      
+      if (event.keyCode == 13){
+        $("#cache").load("/send_message/<%= @client %>?message="+text.replace(new RegExp(' ', 'g'),'%20'));
+        var text = "<%= @id %>--><%= @client %>:"+$(this).val();
+        $(".chat_flux_message")
+          .last()
+          .after("<div class=\"chat_flux_message\">"+text+"</div>");
+        $(this).val("");
+        
+        return false;
+      }
+    });
+    
+    window.setInterval("recuperer_messages()", 1000);
+</script>

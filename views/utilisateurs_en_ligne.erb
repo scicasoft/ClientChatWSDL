@@ -1,0 +1,7 @@
+<ul style="list-style:none;text-shadow:0 2px 2px rgba(0,0,0,.3); margin:0; padding:0">
+  <% @clients.each do |c| %>
+    <% unless (c == session[:chat_id] || c == 'ROOM') %>
+      <li onClick="window.open ('/chat_avec/<%= c %>', 'chat_avec_<%= c %>', config='height=460, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, directories=yes, status=no')" class="client" style="background-color:#EFEFEF;color:#842e1b;padding:2px; width:100%; margin-top:3px;-webkit-box-shadow:1px 1px 1px rgba(0,0,0,.2);-moz-box-shadow:1px 1px 1px rgba(0,0,0,.2);margin-bottom:5px; border-radius:5px; padding-left:5px"><%= c %></li>
+    <% end %>
+  <% end %>
+</ul>
