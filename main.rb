@@ -8,6 +8,12 @@ enable :sessions
 
 NAMESPACE = 'ChatRoom'
 URL = 'http://localhost:8080/axis/services/ChatRoom.jws?wsdl'
+driver = SOAP::RPC::Driver.new(URL, NAMESPACE)
+driver.add_method('getUsersOnline')
+driver.add_method('sendMessage', 'id_sender', 'id_receiver', 'message')
+driver.add_method('getFirstMessages', 'id', 'id_sender')
+driver.add_method('login', 'id')
+driver.add_method('logout', 'id')
 
 get '/' do
   redirect '/chat' unless session[:chat_id].nil?
@@ -15,26 +21,17 @@ get '/' do
 end
 
 get '/send_message/:id' do
-  driver = SOAP::RPC::Driver.new(URL, NAMESPACE)
-  driver.add_method('sendMessage', 'id_sender', 'id_receiver', 'message')
-  
   driver.sendMessage(session[:chat_id], params[:id], params[:message].split('%20').join(' '))
   ""
 end
 
 get '/message/:id' do
-  driver = SOAP::RPC::Driver.new(URL, NAMESPACE)
-  driver.add_method('getFirstMessages', 'id', 'id_sender')
-  
   driver.getFirstMessages(session[:chat_id], params[:id])
 end
 
 post '/chat' do
   session[:chat_id] = params[:id]
   @id = session[:chat_id]
-  
-  driver = SOAP::RPC::Driver.new(URL, NAMESPACE)
-  driver.add_method('login', 'id')
   
   driver.login(@id)
   
@@ -43,9 +40,6 @@ end
 
 get '/chat' do
   @id = session[:chat_id]
-  
-  driver = SOAP::RPC::Driver.new(URL, NAMESPACE)
-  driver.add_method('login', 'id')
   
   driver.login(@id)
   
@@ -60,9 +54,6 @@ get '/chat_avec/:id' do
 end
 
 get '/logout' do
-  driver = SOAP::RPC::Driver.new(URL, NAMESPACE)
-  driver.add_method('logout', 'id')
-  
   driver.logout(session[:chat_id])
   
   session[:chat_id] = nil
@@ -70,9 +61,6 @@ get '/logout' do
 end
 
 get '/utilisateurs_en_ligne' do
-  driver = SOAP::RPC::Driver.new(URL, NAMESPACE)
-  driver.add_method('getUsersOnline')
-  
   @clients = driver.getUsersOnline.split(':').reverse
   @clients.pop
   erb :utilisateurs_en_ligne
